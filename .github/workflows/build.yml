@@ -1,0 +1,36 @@
+Build Relay AAB
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract project ZIP
+        run: |
+          unzip -q RelayPlayStore_NoARCore.zip
+          mv RelayPlayStore/* .
+          mv RelayPlayStore/.[!.]* . 2>/dev/null || true
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build AAB
+        run: gradle :app:bundleRelease
+
+      - name: Upload AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: Relay-AAB
+          path: app/build/outputs/bundle/release/app-release.aab
